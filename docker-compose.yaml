@@ -1,0 +1,25 @@
+version: '3'
+
+volumes:
+  registry_vol:
+    name: registry_vol
+
+services:
+  registry:
+    image: registry:2
+    container_name: private_registry
+    restart: always
+    environment:
+      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+      - REGISTRY_STORAGE_DELETE_ENABLED=true
+      - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/cert.pem
+      - REGISTRY_HTTP_TLS_KEY=/certs/key.pem
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=basic-realm
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+    ports:
+      - ${REGISTRY_PORT:-443}:5000
+    volumes:
+      - ${REGISTRY_DATA_DIR:-registry_vol}:/var/lib/registry
+      - ./auth:/auth
+      - ./cert:/certs
