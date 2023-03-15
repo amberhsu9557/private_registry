@@ -1,12 +1,14 @@
 #/!bin/bash
 HOST_IP=`hostname -I | awk '{print $1}'`
-REGISTRY_NAME="registry.${HOST_IP}.nip.io"
-DEFAULT_USERNAME=guest
-DEFAULT_PASSWORD=guesspassword
+DOMAIN_NAME="registry.${HOST_IP}.nip.io"
+PORT=5001
+REGISTRY_NAME="${DOMAIN_NAME}:${PORT}"
+DEFAULT_USERNAME=admin
+DEFAULT_PASSWORD=cht12345
 
-read -r -p "Please input the domain name of registry (default: ${REGISTRY_NAME}) ===>  " input_registry_name
-read -r -p "Please input the username (default: ${DEFAULT_USERNAME}) ===>  " input_default_username
-read -r -p "Please input the password (default: ${DEFAULT_PASSWORD}) ===>  " input_default_password
+read -r -p "Please input the domain name of registry: (default: ${REGISTRY_NAME}) " input_registry_name
+read -r -p "Please input the username: (default: ${DEFAULT_USERNAME}) " input_default_username
+read -r -p "Please input the password: (default: ${DEFAULT_PASSWORD}) " input_default_password
 
 INPUT_REGISTRY_NAME="${input_registry_name:-$REGISTRY_NAME}:"
 export REGISTRY_NAME="${INPUT_REGISTRY_NAME%%:}"
@@ -44,12 +46,12 @@ echo "================================================"
 echo "Prepare certifiacte for clients ..."
 echo "================================================"
 cp -r cert $REGISTRY_NAME
-zip -q -r cert_$REGISTRY_NAME.zip $REGISTRY_NAME
+zip -q -r cert_${REGISTRY_NAME//[.:]/_}.zip $REGISTRY_NAME
 rm -rf $REGISTRY_NAME
-echo "Zip cert into cert_$REGISTRY_NAME.zip ... "
+echo "Zip cert into cert_${REGISTRY_NAME//[.:]/_}.zip ... "
 
 echo ""
 echo "Please follow the steps for installing certificate in clients ..."
 echo "    mkdir -p /etc/docker/certs.d"
-echo "    unzip cert_${REGISTRY_NAME}.zip -d /etc/docker/certs.d"
+echo "    unzip cert_${REGISTRY_NAME//[.:]/_}.zip -d /etc/docker/certs.d"
 echo "    docker login $REGISTRY_NAME -u $DEFAULT_USERNAME -p $DEFAULT_PASSWORD"
